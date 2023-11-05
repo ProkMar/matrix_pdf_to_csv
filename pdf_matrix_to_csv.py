@@ -4,7 +4,7 @@ import fitz
 from pylibdmtx import pylibdmtx
 
 
-def process_file(work_directory, input_file, output_file):
+def process_file(work_directory, input_file, output_file, **kwargs):
 
     output_dir = os.path.join(work_directory, 'output_csv')
     input_path = os.path.join(work_directory, input_file)
@@ -31,10 +31,10 @@ def process_file(work_directory, input_file, output_file):
         img = cv2.imread(temp_file_name)
         border = cv2.copyMakeBorder(
             img,
-            0,
-            1372,
-            0,
-            197,
+            kwargs['top'],
+            kwargs['bottom'],
+            kwargs['left'],
+            kwargs['right'],
             cv2.BORDER_CONSTANT,
             None,
             value=0  # [255, 255, 255]
@@ -61,10 +61,10 @@ def make_dirs(work_directory):
         os.mkdir(path_temp_directory)
 
 
-def process_files(work_directory, files_dict):
+def process_files(work_directory, files_dict, **kwargs):
     for input_file, output_file in files_dict.items():
         print(f'{input_file} to {output_file}')
-        process_file(work_directory, input_file, output_file)
+        process_file(work_directory, input_file, output_file, **kwargs)
         print()
 
 
@@ -85,7 +85,27 @@ def get_pdf_files_list(work_directory):
 
 if __name__ == "__main__":
     import sys
+
+    if len(sys.argv) < 2:
+        print('Не указан обязательный аргумент - каталог с файлами pdf.')
+        raise ValueError
+
     work_directory = sys.argv[1]
     files_dict = get_pdf_files_list(work_directory)
     make_dirs(work_directory)
-    process_files(work_directory, files_dict)
+
+    top = 0
+    bottom = 1372
+    left = 0
+    right = 197
+
+    process_files(
+        work_directory,
+        files_dict,
+        **{
+            'top': top,
+            'bottom': bottom,
+            'left': left,
+            'right': right
+            }
+        )
